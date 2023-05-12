@@ -1,6 +1,6 @@
-package SoftwareEngineerClub.GroupUpBackend.User;
+package SoftwareEngineerClub.GroupUpBackend.User.Models;
 
-import SoftwareEngineerClub.GroupUpBackend.Event.Event;
+import SoftwareEngineerClub.GroupUpBackend.Event.Models.Event;
 
 import java.util.ArrayList;
 import java.util.List;

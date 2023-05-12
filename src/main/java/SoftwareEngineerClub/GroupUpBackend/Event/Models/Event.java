@@ -1,6 +1,7 @@
-package SoftwareEngineerClub.GroupUpBackend.Event;
+package SoftwareEngineerClub.GroupUpBackend.Event.Models;
 
-import SoftwareEngineerClub.GroupUpBackend.User.User;
+import SoftwareEngineerClub.GroupUpBackend.Event.Type;
+import SoftwareEngineerClub.GroupUpBackend.User.Models.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
