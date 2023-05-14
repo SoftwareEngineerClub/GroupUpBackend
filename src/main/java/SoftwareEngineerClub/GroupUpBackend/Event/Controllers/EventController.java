@@ -15,8 +15,8 @@ public class EventController {
     @Autowired
     private EventService service;
 
-    @GetMapping
-    public List<Event>() {
-        return service.
-    }
+//    @GetMapping
+//    public List<Event>() {
+//        return service.
+//    }
 }

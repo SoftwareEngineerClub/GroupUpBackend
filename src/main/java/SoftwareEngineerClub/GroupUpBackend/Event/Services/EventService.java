@@ -13,8 +13,12 @@ import java.util.Optional;
 
 @Service
 public class EventService {
-    @Autowired
     private EventRepository repository;
+
+    @Autowired
+    public EventService(EventRepository eventRepository) {
+        this.repository = eventRepository;
+    }
 
     public List<Event> getEvents() {
         return repository.findAll();
@@ -62,7 +66,7 @@ public class EventService {
         }
     }
 
-    public Event updateEvent(long id, Event event) throws CouldNotBeUpdatedException {
-        // TODO finish this tomorrow.
-    }
+//    public Event updateEvent(long id, Event event) throws CouldNotBeUpdatedException {
+//        // TODO finish this tomorrow.
+//    }
 }
