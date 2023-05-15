@@ -3,6 +3,8 @@ package SoftwareEngineerClub.GroupUpBackend.Event.Services;
 import SoftwareEngineerClub.GroupUpBackend.Event.Models.Event;
 import SoftwareEngineerClub.GroupUpBackend.Event.Models.EventType;
 import SoftwareEngineerClub.GroupUpBackend.Event.Repos.EventRepository;
+import SoftwareEngineerClub.GroupUpBackend.Exceptions.CouldNotBeCreatedException;
+import SoftwareEngineerClub.GroupUpBackend.Exceptions.CouldNotBeDeletedException;
 import SoftwareEngineerClub.GroupUpBackend.Exceptions.NotFoundException;
 import SoftwareEngineerClub.GroupUpBackend.User.Models.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +33,9 @@ public class EventServiceTest {
 
     List<Event> eventsList = new ArrayList<>();
 
-    List<User> usersList = new ArrayList<>();
-
     Optional<Event> optionalEvent;
+
+    Event event;
 
     @BeforeEach
     public void setup() {
@@ -47,7 +49,10 @@ public class EventServiceTest {
         optionalEvent = Optional.of(new Event(
                 1, "Birthday party", "Manteca, CA",
                 Date.valueOf(LocalDate.of(2023, Month.DECEMBER, 25)),
-                "A birthday party", EventType.BIRTHDAY, usersList));
+                "A birthday party", EventType.BIRTHDAY, new ArrayList<>()));
+
+        // Set an event for the tests that use it
+        event = optionalEvent.get();
     }
 
 
@@ -75,8 +80,7 @@ public class EventServiceTest {
 
         // Assert
         verify(eventRepository).findById(anyLong());
-        assertEquals(event, optionalEvent.get());
-        assertEquals(event.getId(), optionalEvent.get().getId());
+        assertEquals(event, event);
     }
 
     @Test
@@ -89,8 +93,7 @@ public class EventServiceTest {
 
         // Assert
         verify(eventRepository).findByTitle(anyString());
-        assertEquals(event, optionalEvent.get());
-        assertEquals(event.getTitle(), optionalEvent.get().getTitle());
+        assertEquals(event, event);
     }
 
     @Test
@@ -100,14 +103,82 @@ public class EventServiceTest {
         when(eventRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        // Assert
-        assertThrows(NotFoundException.class, () -> eventService.getEvent(1L));
         NotFoundException exception = assertThrows(NotFoundException.class, () -> eventService.getEvent(1L));
+
+        // Assert
+        verify(eventRepository).findById(anyLong());
+        assertThrows(NotFoundException.class, () -> eventService.getEvent(1L));
         assertEquals("Event with id {1} was not found.", exception.getMessage());
     }
 
-//    @Test
-//    void willThrowWhenEventWithGivenTitleDoesNotExist() {
-//
-//    }
+    @Test
+    void willThrowWhenEventWithGivenTitleDoesNotExist() {
+        // Arrange
+        String title = "DoesNotExist";
+        when(eventRepository.findByTitle(title)).thenReturn(Optional.empty());
+
+        // Act
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> eventService.getEvent(title));
+
+        // Assert
+        verify(eventRepository).findByTitle(anyString());
+        assertThrows(NotFoundException.class, () -> eventService.getEvent(title));
+        assertEquals("Event with title {DoesNotExist} was not found.", exception.getMessage());
+    }
+
+    @Test
+    void postsEvent() throws CouldNotBeCreatedException {
+        // Arrange
+        when(eventRepository.findByTitle(anyString())).thenReturn(Optional.empty());
+        when(eventRepository.save(any())).thenReturn(event);
+
+        // Act
+        Event postedEvent = eventService.postEvent(event);
+
+        // Assert
+        verify(eventRepository).save(any());
+        assertEquals(postedEvent, event);
+    }
+
+    @Test
+    void willThrowWhenEventAlreadyExists() {
+        // Arrange
+        when(eventRepository.findByTitle(anyString())).thenReturn(optionalEvent);
+
+        // Act
+        CouldNotBeCreatedException exception =
+                assertThrows(CouldNotBeCreatedException.class, () -> eventService.postEvent(event));
+
+        // Assert
+        verify(eventRepository).findByTitle(anyString());
+        assertThrows(CouldNotBeCreatedException.class, () -> eventService.postEvent(event));
+        assertEquals("Event with title {Birthday party} already exists.", exception.getMessage());
+    }
+
+    @Test
+    void deletesEvent() throws CouldNotBeDeletedException {
+        // Arrange
+        when(eventRepository.findById(anyLong())).thenReturn(optionalEvent);
+
+        // Act
+        eventService.deleteEvent(anyLong());
+
+        // Assert
+        verify(eventRepository).findById(anyLong());
+    }
+
+    @Test
+    void throwsWhenEventToDeleteDoesNotExist() {
+        // Arrange
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // Act
+        CouldNotBeDeletedException exception =
+                assertThrows(CouldNotBeDeletedException.class, () -> eventService.deleteEvent(anyLong()));
+
+        // Assert
+        verify(eventRepository).findById(anyLong());
+        assertThrows(CouldNotBeDeletedException.class, () -> eventService.deleteEvent(anyLong()));
+        assertEquals("Event with id {0} could not be deleted.", exception.getMessage());
+    }
 }

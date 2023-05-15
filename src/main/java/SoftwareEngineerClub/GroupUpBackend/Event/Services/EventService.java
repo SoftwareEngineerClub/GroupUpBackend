@@ -45,15 +45,10 @@ public class EventService {
     public Event postEvent(Event event) throws CouldNotBeCreatedException {
         Optional<Event> optionalEvent = repository.findByTitle(event.getTitle());
         if (optionalEvent.isPresent()) {
-            throw new CouldNotBeCreatedException("Event with title {%s} already exists.");
+            throw new CouldNotBeCreatedException(String.format("Event with title {%s} already exists.", event.getTitle()));
         } else {
-            repository.save(event);
-            Optional<Event> createdEvent = repository.findById(event.getId());
-            if (createdEvent.isPresent()) {
-                return createdEvent.get();
-            } else {
-                throw new CouldNotBeCreatedException("Recipe could not be created");
-            }
+            Event postedEvent = repository.save(event);
+            return postedEvent;
         }
     }
 
@@ -67,6 +62,6 @@ public class EventService {
     }
 
 //    public Event updateEvent(long id, Event event) throws CouldNotBeUpdatedException {
-//        // TODO finish this tomorrow.
+//        // TODO complete this
 //    }
 }
