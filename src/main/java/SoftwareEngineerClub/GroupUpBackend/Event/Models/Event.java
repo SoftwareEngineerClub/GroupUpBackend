@@ -1,6 +1,5 @@
 package SoftwareEngineerClub.GroupUpBackend.Event.Models;
 
-import SoftwareEngineerClub.GroupUpBackend.Event.Type;
 import SoftwareEngineerClub.GroupUpBackend.User.Models.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,7 +24,7 @@ public class Event {
     @GeneratedValue
     private long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
 
     private String location;
@@ -34,7 +33,7 @@ public class Event {
 
     private String description;
 
-    private Type type;
+    private EventType eventType;
 
     private List<User> attendees = new ArrayList<>();
 
